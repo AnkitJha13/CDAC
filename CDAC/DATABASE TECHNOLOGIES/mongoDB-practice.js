@@ -135,7 +135,7 @@ db.employees.insertOne({
 
 
 # to find based on salary greater than 80000
-- db.employees.find({ salary: { $gt: 80000 } })
+- db.employees.find({ salary: { $gt: 80000 } })  // similarly for less than use $lt
 
 
 
@@ -158,5 +158,38 @@ db.employees.insertOne({
 
 
 
-# 
+
+# BSON date format for MongoDB (Using ISODATE for date)
+- db.employees.insertOne({
+  emp_id: 107,
+  first_name: "Riya",
+  last_name: "Mishra",
+  email: "riya.mishra@company.in",
+  hire_date: ISODate("2023-04-01"),
+  salary: 72000,
+  department: "Finance"
+})
+
+
+
+
+
+# UPSERT (Update + Insert if not exists) 
+- db.employees.updateOne(
+  { emp_id: 108 },     // if this emp_id is not availaible it will insert otherwise update the existing data
+  {
+    $set: {
+      first_name: "Virat",
+      last_name: "Kohli",
+      email: "virat.kohli@company.in",
+      hire_date: "2022-03-18",
+      salary: 78000,
+      department: "IT"
+    }
+  },
+  { upsert: true }
+)
+
+
+
 
