@@ -53,6 +53,18 @@ select * from dept;
 
 
 
+-- To create a stored procedure without any parameters
+DELIMITER //
+CREATE PROCEDURE GetAllEmployees()
+BEGIN
+    SELECT * FROM emp;
+END //
+DELIMITER ;
+
+CALL GetAllEmployees();
+
+
+
 -- Retrieve Employee Details by Department
 DELIMITER //
 CREATE PROCEDURE GetEmployeesByDept(IN dept_id INT)
