@@ -4,7 +4,7 @@
 # db.createCollection("employees")
 
 
-# to insert multiple data
+# To insert multiple data
 
 db.employees.insertMany([
  {
@@ -134,12 +134,12 @@ db.employees.insertMany([
 
 
 
-# find data based on IT department
+# Find data based on IT department
 - db.employees.find({ department: "IT" }) 
 
 
 
-# find data based on last name Singh
+# Find data based on last name Singh
 - db.employees.find({ last_name : "Singh" }) 
 
 
