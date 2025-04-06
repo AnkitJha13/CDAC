@@ -180,7 +180,7 @@ SELECT @max_salary;
 
 -- Update Employee Salary by 10% based on dept id 
 DELIMITER //
-CREATE PROCEDURE UpdateSalaryByPercentage(IN dept_id INT, IN percent DECIMAL(5,2))
+CREATE PROCEDURE UpdateSalaryByPercentage(IN dept_id INT, IN percent DECIMAL(10,2))
 BEGIN
     SET SQL_SAFE_UPDATES = 0;
     UPDATE emp SET sal = sal + (sal * percent / 100) WHERE deptno = dept_id;
@@ -201,7 +201,7 @@ DROP PROCEDURE IF EXISTS UpdateSalaryByPercentage;
 
 -- Update Employee Salary by 15% based on emp id 
 DELIMITER //
-CREATE PROCEDURE UpdateSalaryByEmpID(IN p_empid INT, IN p_percent DECIMAL(5,2))
+CREATE PROCEDURE UpdateSalaryByEmpID(IN p_empid INT, IN p_percent DECIMAL(10,2))
 BEGIN
     SET SQL_SAFE_UPDATES = 0;
     UPDATE emp
