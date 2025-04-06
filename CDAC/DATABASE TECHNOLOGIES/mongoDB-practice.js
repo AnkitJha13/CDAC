@@ -116,6 +116,15 @@ db.employees.insertOne({
 
 
 
+# to increment the salary of a particular department 
+- db.employees.updateMany(
+  { department: "IT" },
+  { $inc: { salary: 3000 } }
+)
+
+
+
+
 # Delete Employee with emp_id = 105
 - db.employees.deleteOne({ emp_id: 105 })
 
