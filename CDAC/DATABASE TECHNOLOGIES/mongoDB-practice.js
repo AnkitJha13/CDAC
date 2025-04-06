@@ -71,13 +71,13 @@ db.employees.insertMany([
 
 
 
-# to display all the data in employees
+# To display all the data in employees
 - db.employees.find()
 
 
 
 
-# to search an employee data based on name
+# To search an employee data based on name
 - db.employees.find({ first_name: "Amit" })
 
 
@@ -119,7 +119,7 @@ db.employees.insertMany([
 
 
 
-# to increment the salary of a particular department 
+# To increment the salary of a particular department 
 - db.employee.updateMany(
   { department: "IT" },
   { $inc: { salary: 3000 } }
@@ -145,7 +145,7 @@ db.employees.insertMany([
 
 
 
-# to find based on salary greater than 80000
+# To find based on salary greater than 80000
 - db.employees.find({ salary: { $gt: 80000 } })  // similarly for less than use $lt
 
 
