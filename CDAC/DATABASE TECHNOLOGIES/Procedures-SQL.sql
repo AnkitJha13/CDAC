@@ -52,7 +52,6 @@ select * from emp;
 select * from dept;
 
 
-
 -- To create a stored procedure without any parameters
 DELIMITER //
 CREATE PROCEDURE GetAllEmployees()
@@ -64,8 +63,7 @@ DELIMITER ;
 CALL GetAllEmployees();
 
 
-
--- Retrieve Employee Details by Department
+-- Retrieve Employee Details by Department (using only IN parameters)
 DELIMITER //
 CREATE PROCEDURE GetEmployeesByDept(IN dept_id INT)
 BEGIN
@@ -97,7 +95,7 @@ Call InsertEmployee(7935, 'ashton', 'analyst', 7821, '1988-07-12', 1200.00, 0, 2
 
 
 
--- Delete Employees by Experience (not working)
+-- Delete Employees by Experience
 DELIMITER //
 CREATE PROCEDURE DeleteEmployeesByExperience(IN min_exp INT)
 BEGIN
@@ -133,7 +131,7 @@ CALL EmployeeCountReport();
 
 
 
--- Retrieve Employee Count by Department
+-- Retrieve Employee Count by Department (using IN and OUT parameters)
 DELIMITER //
 CREATE PROCEDURE GetEmployeeCount(IN dept_id INT, OUT emp_count INT)
 BEGIN
@@ -204,11 +202,7 @@ CALL UpdateSalaryByPercentage(20, 10);
 
 select * from emp;
 
--- to drop a procedure 
-DROP PROCEDURE IF EXISTS UpdateSalaryByPercentage; 
-
-
-
+DROP PROCEDURE IF EXISTS UpdateSalaryByPercentage;
 
 
 -- Update Employee Salary by 15% based on emp id 
@@ -230,6 +224,7 @@ CALL UpdateSalaryByEmpID(7369, 15);
 
 
 
+	
 -- Get Employee Details by ID
 DELIMITER //
 CREATE PROCEDURE GetEmployeeDetailsByID(IN emp_id INT, OUT emp_name VARCHAR(10), OUT emp_salary DECIMAL(7,2))
@@ -243,6 +238,57 @@ DELIMITER ;
 SET @emp_name = '', @emp_salary = 0;
 CALL GetEmployeeDetailsByID(7566, @emp_name, @emp_salary);
 SELECT @emp_name, @emp_salary;
+
+
+
+select * from emp;
+
+
+
+-- to use IF-ELSE inside a procedure (to check salary status of a particular employee)
+DELIMITER //
+CREATE PROCEDURE CheckSalaryLevelByEmpID(IN emp_id INT)
+BEGIN
+    DECLARE salary DECIMAL(10,2);
+    SELECT sal INTO salary
+    FROM emp
+    WHERE empno = emp_id;
+
+    IF salary > 3000 THEN
+        SELECT 'High Salary' AS status;
+    ELSEIF salary BETWEEN 1500 AND 3000 THEN
+        SELECT 'Medium Salary' AS status;
+    ELSE
+        SELECT 'Low Salary' AS status;
+    END IF;
+END //
+DELIMITER ;
+
+CALL CheckSalaryLevelByEmpID(7566); -- it will display the status for a particular empid
+
+
+
+select * from emp;
+select * from dept;
+
+
+
+
+-- to search a particular dept id work location
+DELIMITER //
+CREATE PROCEDURE GetDeptLocation(IN dept_id INT)
+BEGIN
+    CASE dept_id
+        WHEN 10 THEN SELECT 'New York' AS location;
+        WHEN 20 THEN SELECT 'Dallas' AS location;
+        WHEN 30 THEN SELECT 'Chicago' AS location;
+        ELSE SELECT 'Unknown Department' AS location;
+    END CASE;
+END //
+DELIMITER ;
+
+CALL GetDeptLocation(10);
+
 
 
 
