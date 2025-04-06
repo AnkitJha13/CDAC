@@ -56,6 +56,21 @@ db.employees.insertMany([
 
 
 
+
+# To insert only a single data
+- db.employees.insertOne({
+  emp_id: 106,
+  first_name: "Rahul",
+  last_name: "Nair",
+  email: "rahul.nair@company.in",
+  hire_date: "2022-05-01",
+  salary: 65000,
+  department: "Marketing"
+})
+
+
+
+
 # to display all the data in employees
 - db.employees.find()
 
@@ -67,18 +82,6 @@ db.employees.insertMany([
 
 
 
-
-# to insert only a single data
-
-db.employees.insertOne({
-  emp_id: 106,
-  first_name: "Rahul",
-  last_name: "Nair",
-  email: "rahul.nair@company.in",
-  hire_date: "2022-05-01",
-  salary: 65000,
-  department: "Marketing"
-})
 
 
 
@@ -117,7 +120,7 @@ db.employees.insertOne({
 
 
 # to increment the salary of a particular department 
-- db.employees.updateMany(
+- db.employee.updateMany(
   { department: "IT" },
   { $inc: { salary: 3000 } }
 )
@@ -199,5 +202,52 @@ db.employees.insertOne({
 )
 
 
+
+
+
+
+
+
+
+# Find using $and (Example: Finance dept with salary > 70000)
+db.employees.find({
+  $and: [
+    { department: "Finance" },
+    { salary: { $gt: 70000 } }
+  ]
+})
+
+
+
+
+# Find using $or (Example: HR or salary < 65000)
+db.employees.find({
+  $or: [
+    { department: "HR" },
+    { salary: { $lt: 65000 } }
+  ]
+})
+
+
+
+
+
+# Create index on department (improves query speed)
+- db.employees.createIndex({ department: 1 })
+
+
+
+# Create compound index on salary (desc) + department
+- db.employees.createIndex({ salary: -1, department: 1 })
+
+
+
+# View all indexes
+- db.employees.getIndexes()
+
+
+
+# Drop index on department
+- db.employees.dropIndex({ department: 1 })
 
 
