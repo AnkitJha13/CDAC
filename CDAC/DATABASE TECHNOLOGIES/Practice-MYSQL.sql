@@ -1,147 +1,157 @@
--- Creating a Database
-CREATE DATABASE practiceMySQL;
+-- Create Database
+CREATE DATABASE practiceCompany;
+USE practiceCompany;
 
--- Using the Database
-USE practiceMySQL;
-
-
--- Creating Course Table with Constraints
-CREATE TABLE Course(
-    course_id INT PRIMARY KEY,                     -- PRIMARY KEY ensures unique course_id
-    course_name VARCHAR(100) NOT NULL,             -- NOT NULL ensures course_name cannot be NULL
-    duration_in_years DECIMAL(10,3) CHECK (duration_in_years > 0), -- CHECK ensures only positive values
-    course_fee DECIMAL(10,2) DEFAULT 50000,        -- DEFAULT value set for course_fee
-    UNIQUE(course_name)                            -- UNIQUE ensures no duplicate course_name
+-- Department Table
+CREATE TABLE Department (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(100) UNIQUE NOT NULL,
+    location VARCHAR(100)
 );
 
-
--- Creating Students Table with Constraints
-CREATE TABLE Students(
-    student_id INT PRIMARY KEY,                   -- PRIMARY KEY ensures unique student_id
-    student_name VARCHAR(100) NOT NULL,           -- NOT NULL ensures student_name cannot be NULL
-    age INT CHECK (age >= 18 AND age <= 60),      -- CHECK ensures age is between 18 and 60
-    email VARCHAR(100) UNIQUE,                    -- UNIQUE ensures no duplicate emails
-    course_id INT,                                
-    FOREIGN KEY(course_id) REFERENCES Course(course_id) ON DELETE CASCADE -- Foreign key with CASCADE
+-- Employee Table with DOB and DOJ for extra views
+CREATE TABLE Employee (
+    empid INT PRIMARY KEY,
+    empname VARCHAR(100) NOT NULL,
+    DOB DATE,
+    DOJ DATE,
+    age INT CHECK (age >= 18 AND age <= 60),
+    email VARCHAR(100) UNIQUE,
+    dept_id INT,
+    salary DECIMAL(10,2) DEFAULT 30000,
+    FOREIGN KEY (dept_id) REFERENCES Department(dept_id) ON DELETE CASCADE
 );
 
+-- Insert Department Data
+INSERT INTO Department (dept_id, dept_name, location) VALUES
+(1, 'HR', 'New York'),
+(2, 'Engineering', 'San Francisco'),
+(3, 'Finance', 'Chicago'),
+(4, 'Marketing', 'Los Angeles');
 
+-- Insert Employee Data
+INSERT INTO Employee (empid, empname, DOB, DOJ, age, email, dept_id, salary) VALUES
+(1, 'John Doe', '2000-05-15', '2020-07-01', 25, 'john@example.com', 2, 50000),
+(2, 'Jane Smith', '1995-03-10', '2015-01-15', 30, 'jane@example.com', 1, 45000),
+(3, 'Emily Davis', '1997-08-25', '2018-10-01', 28, 'emily@example.com', 3, 47000),
+(4, 'Michael Brown', '1990-11-20', '2010-06-05', 35, 'michael@example.com', 4, 42000),
+(5, 'Chris Green', '1999-01-05', '2022-09-01', 23, 'chris@example.com', NULL, NULL); -- No department
 
--- Inserting Data into Course Table
-INSERT INTO Course (course_id, course_name, duration_in_years, course_fee) VALUES
-(1, 'Computer Science', 4, 60000),
-(2, 'Mechanical Engineering', 4, 55000),
-(3, 'Electrical Engineering', 4, 52000),
-(4, 'Civil Engineering', 4, 50000),  -- Default fee
-(5, 'Business Administration', 3, 48000),
-(6, 'Data Science', 2, 60000),
-(7, 'Artificial Intelligence', 2, 65000),
-(8, 'Cyber Security', 2, 70000);
-
--- Inserting Data into Students Table
-INSERT INTO Students (student_id, student_name, age, email, course_id) VALUES
-(1, 'Alice Johnson', 20, 'alice@example.com', 1),
-(2, 'Bob Smith', 21, 'bob@example.com', 2),
-(3, 'Charlie Brown', 22, 'charlie@example.com', 3),
-(4, 'David Wilson', 19, 'david@example.com', 4),
-(5, 'Emma Davis', 20, 'emma@example.com', 5),
-(6, 'Frank White', 22, 'frank@example.com', 6),
-(7, 'Grace Miller', 21, 'grace@example.com', 7),
-(8, 'Helen Carter', 23, NULL, NULL); -- Student without email and course for testing joins
-
-
--- Selecting Data
-SELECT * FROM Course;
-SELECT * FROM Students;
-
--- Renaming Table
-ALTER TABLE Students RENAME TO StudentDetails;
-
-
--- Deleting a Specific Student
-DELETE FROM StudentDetails WHERE student_id = 6;
-
-
--- Deleting a Course (Cascade Effect on Students Table)
-DELETE FROM Course WHERE course_id = 1;
-
-
--- Changing Column Name and Data Type
-ALTER TABLE Course CHANGE COLUMN duration_in_years course_duration DECIMAL(10,2);
-
-
--- Adding a New Column
-ALTER TABLE Course ADD course_email VARCHAR(100);
-
-
--- Removing a Column
-ALTER TABLE Course DROP COLUMN course_email;
-
-
--- Updating a Student Record
-UPDATE StudentDetails SET student_name = 'Athena Immortal' WHERE student_id = 3;
-
-
--- Modifying Data Type of Age Column
-ALTER TABLE StudentDetails MODIFY age DECIMAL(10,0);
-
-
--- Selecting Updated Data
-SELECT * FROM StudentDetails;
-SELECT * FROM Course;
+-- View All Data
+SELECT * FROM Department;
+SELECT * FROM Employee;
 
 
 
--- INNER JOIN: Matching Records in Both Tables
-SELECT s.student_id, s.student_name, s.age, c.course_name, c.course_duration
-FROM StudentDetails s
-INNER JOIN Course c ON s.course_id = c.course_id;
+-- Rename Table
+ALTER TABLE Employee RENAME TO EmployeeDetails;
 
 
 
--- LEFT JOIN: All Students, Even If No Course
-SELECT s.student_id, s.student_name, s.age, c.course_name, c.course_duration
-FROM StudentDetails s
-LEFT JOIN Course c ON s.course_id = c.course_id;
+-- Delete an Employee
+DELETE FROM EmployeeDetails WHERE empid = 4;
+
+
+-- Delete a Department (Cascade Deletes Employees)
+DELETE FROM Department WHERE dept_id = 3;
+
+
+-- Change Column Name and Data Type
+ALTER TABLE Department CHANGE COLUMN location dept_location VARCHAR(150);
+
+
+-- Add New Column
+ALTER TABLE EmployeeDetails ADD phone_number VARCHAR(15);
+
+
+-- Remove a Column
+ALTER TABLE EmployeeDetails DROP COLUMN phone_number;
+
+
+-- Update Data
+UPDATE EmployeeDetails
+SET empname = 'Athena Warrior'
+WHERE empid = 2;
+
+
+-- Modify Data Type
+ALTER TABLE EmployeeDetails MODIFY age DECIMAL(10,0);
+
+
+-- Select Data
+SELECT * FROM EmployeeDetails;
+SELECT * FROM Department;
 
 
 
--- RIGHT JOIN: All Courses, Even If No Student Enrolled
-SELECT s.student_id, s.student_name, s.age, c.course_name, c.course_duration
-FROM StudentDetails s
-RIGHT JOIN Course c ON s.course_id = c.course_id;
+-- INNER JOIN
+SELECT e.empid, e.empname, d.dept_name, d.dept_location
+FROM EmployeeDetails e
+INNER JOIN Department d ON e.dept_id = d.dept_id;
 
 
--- FULL OUTER JOIN: All Students and Courses (Using UNION for MySQL)
-SELECT s.student_id, s.student_name, s.age, c.course_name, c.course_duration
-FROM StudentDetails s
-LEFT JOIN Course c ON s.course_id = c.course_id
+-- LEFT JOIN
+SELECT e.empid, e.empname, d.dept_name, d.dept_location
+FROM EmployeeDetails e
+LEFT JOIN Department d ON e.dept_id = d.dept_id;
+
+
+-- RIGHT JOIN
+SELECT e.empid, e.empname, d.dept_name, d.dept_location
+FROM EmployeeDetails e
+RIGHT JOIN Department d ON e.dept_id = d.dept_id;
+
+
+-- FULL OUTER JOIN using UNION
+SELECT e.empid, e.empname, d.dept_name, d.dept_location
+FROM EmployeeDetails e
+LEFT JOIN Department d ON e.dept_id = d.dept_id
 UNION
-SELECT s.student_id, s.student_name, s.age, c.course_name, c.course_duration
-FROM StudentDetails s
-RIGHT JOIN Course c ON s.course_id = c.course_id;
-
-
--- CROSS JOIN: All Possible Combinations of Students and Courses
-SELECT s.student_id, s.student_name, s.age, c.course_name, c.course_duration
-FROM StudentDetails s
-CROSS JOIN Course c;
+SELECT e.empid, e.empname, d.dept_name, d.dept_location
+FROM EmployeeDetails e
+RIGHT JOIN Department d ON e.dept_id = d.dept_id;
 
 
 
--- to create a virtual table (view) from StudentDetails table ---
-CREATE VIEW student_details AS
-SELECT student_id, student_name, age
-FROM StudentDetails;
-
-SELECT *
-FROM student_details;
+-- CROSS JOIN
+SELECT e.empname, d.dept_name
+FROM EmployeeDetails e
+CROSS JOIN Department d;
 
 
+-- View: Basic Info
+CREATE OR REPLACE VIEW employee_basic AS
+SELECT empid, empname, age
+FROM EmployeeDetails;
 
--- to copy the table without data
-create table course_new like course;
+SELECT * FROM employee_basic;
 
 
--- to copy the table as well the data 
-create table course_new_table as select * from course;
+-- View: Employee Age Calculated from DOB
+CREATE OR REPLACE VIEW employee_age AS
+SELECT empid, empname, TIMESTAMPDIFF(YEAR, DOB, CURDATE()) AS age
+FROM EmployeeDetails;
+
+SELECT * FROM employee_age;
+
+
+
+-- View: Employee Experience from DOJ
+CREATE OR REPLACE VIEW employee_exp_View AS
+SELECT empid, empname, TIMESTAMPDIFF(YEAR, DOJ, CURDATE()) AS experience_years
+FROM EmployeeDetails;
+
+SELECT * FROM employee_exp_View;
+
+
+
+-- Copy Table Structure without Data
+CREATE TABLE dept_structure_only LIKE Department;
+
+select * from dept_structure_only;
+
+
+-- Copy Table with Data
+CREATE TABLE dept_full_copy AS SELECT * FROM Department;
+
+select * from dept_full_copy;
