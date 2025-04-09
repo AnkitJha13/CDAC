@@ -160,7 +160,7 @@ db.employees.insertMany([
 
 
 
-# First Name Starts With 'A' and Last Name Ends With 'N'
+# First Name Starts With 'V' and Last Name Ends With 'h'
 - db.employees.find({
   first_name: { $regex: /^V/i },
   last_name: { $regex: /h$/i }     // Output - Vikram Singh complete data will be printed
