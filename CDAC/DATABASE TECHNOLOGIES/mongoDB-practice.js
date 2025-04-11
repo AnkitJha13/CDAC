@@ -1,12 +1,12 @@
 ## Use Database and Create Collection
-# use companyDB
-
-# db.createCollection("employees")
+# use companyDB (selects/creates the database)
 
 
-# To insert multiple data
+# db.createCollection("employees") (creates the employees collection)
 
-db.employees.insertMany([
+
+# To insert multiple data (insertMany - bulk insert)
+- db.employees.insertMany([
  {
    "emp_id": 101,
    "first_name": "Amit",
@@ -56,8 +56,7 @@ db.employees.insertMany([
 
 
 
-
-# To insert only a single data
+# To insert only a single data (insertOne)
 - db.employees.insertOne({
   emp_id: 106,
   first_name: "Rahul",
@@ -70,107 +69,95 @@ db.employees.insertMany([
 
 
 
-
-# To display all the data in employees
+# To display all the data in employees (display all)
 - db.employees.find()
 
 
 
-
-# To search an employee data based on name
+# To search an employee data based on name (filter by name)
 - db.employees.find({ first_name: "Amit" })
 
 
 
-
-
-
-# Increase salary by 10% (for emp_id 103)
+# Increase salary by 10% (use $mul for multiplication)
 - db.employees.updateOne(
   { emp_id: 103 },
-  { $mul: { salary: 1.10 } }  // increase by 10%
+  { $mul: { salary: 1.10 } }
 )
 
 
 
-
-# Decrease salary by 10% (for emp_id 103)
+# Decrease salary by 10% (use $mul to decrease)
 - db.employees.updateOne(
   { emp_id: 103 },
-  { $mul: { salary: 0.90 } }  // decrease salary by 10%
+  { $mul: { salary: 0.90 } }
 )
 
 
 
-# Add 5000 to salary (for emp_id 103)
+# Add 5000 to salary (use $inc to increment)
 - db.employees.updateOne(
   { emp_id: 103 },
-  { $inc: { salary: 5000 } } // add 5000 to salary
+  { $inc: { salary: 5000 } }
 )
 
 
 
-# Subtract 5000 from salary (for emp_id 103)
+# Subtract 5000 from salary (use $inc with negative value)
 - db.employees.updateOne(
   { emp_id: 103 },
-  { $inc: { salary: -5000 } } // subtract 5000 from salary
+  { $inc: { salary: -5000 } }
 )
 
 
 
-
-# To increment the salary of a particular department 
-- db.employee.updateMany(
+# Increment salary of IT department (updateMany on filter)
+- db.employees.updateMany(
   { department: "IT" },
   { $inc: { salary: 3000 } }
 )
 
 
 
-
-# Delete Employee with emp_id = 105
+# Delete Employee with emp_id = 105 (deleteOne)
 - db.employees.deleteOne({ emp_id: 105 })
 
 
 
-
-# Find data based on IT department
+# Find data based on IT department (filter by department)
 - db.employees.find({ department: "IT" }) 
 
 
 
-# Find data based on last name Singh
+# Find data based on last name Singh (filter by last name)
 - db.employees.find({ last_name : "Singh" }) 
 
 
 
-
-# To find based on salary greater than 80000
-- db.employees.find({ salary: { $gt: 80000 } })  // similarly for less than use $lt
-
-
-
-# Sort Employees by Salary (Descending)
-- db.employees.find().sort({ salary: -1 })  // for Ascending write salary: 1
+# To find based on salary greater than 80000 (comparison operator $gt)
+- db.employees.find({ salary: { $gt: 80000 } })
 
 
 
-# Find Oldest Employee (Earliest hire_date)
-- db.employees.find().sort({ hire_date: 1 }).limit(1)  // for finding latest employee -> hire_date: -1
+# Sort Employees by Salary Descending (sort -1)
+- db.employees.find().sort({ salary: -1 })
 
 
 
-# First Name Starts With 'V' and Last Name Ends With 'h'
+# Find Oldest Employee (sort by hire_date ascending, limit 1)
+- db.employees.find().sort({ hire_date: 1 }).limit(1)
+
+
+
+# First Name Starts With 'V' and Last Name Ends With 'h' (regex query)
 - db.employees.find({
   first_name: { $regex: /^V/i },
-  last_name: { $regex: /h$/i }     // Output - Vikram Singh complete data will be printed
+  last_name: { $regex: /h$/i }
 })
 
 
 
-
-
-# BSON date format for MongoDB (Using ISODATE for date)
+# BSON date format for MongoDB (using ISODate for proper date storage)
 - db.employees.insertOne({
   emp_id: 107,
   first_name: "Riya",
@@ -183,11 +170,9 @@ db.employees.insertMany([
 
 
 
-
-
-# UPSERT (Update + Insert if not exists) 
+# UPSERT (Update if exists, else Insert - updateOne with upsert)
 - db.employees.updateOne(
-  { emp_id: 108 },     // if this emp_id is not availaible it will insert otherwise update the existing data
+  { emp_id: 108 },
   {
     $set: {
       first_name: "Virat",
@@ -203,14 +188,8 @@ db.employees.insertMany([
 
 
 
-
-
-
-
-
-
-# Find using $and (Example: Finance dept with salary > 70000)
-db.employees.find({
+# Find using $and (filter using multiple conditions)
+- db.employees.find({
   $and: [
     { department: "Finance" },
     { salary: { $gt: 70000 } }
@@ -219,9 +198,8 @@ db.employees.find({
 
 
 
-
-# Find using $or (Example: HR or salary < 65000)
-db.employees.find({
+# Find using $or (match any condition)
+- db.employees.find({
   $or: [
     { department: "HR" },
     { salary: { $lt: 65000 } }
@@ -230,24 +208,92 @@ db.employees.find({
 
 
 
-
-
-# Create index on department (improves query speed)
+# Create index on department (single field index for faster query)
 - db.employees.createIndex({ department: 1 })
 
 
 
-# Create compound index on salary (desc) + department
+# Create compound index (index on salary descending and department)
 - db.employees.createIndex({ salary: -1, department: 1 })
 
 
 
-# View all indexes
+# View all indexes (getIndexes)
 - db.employees.getIndexes()
 
 
 
-# Drop index on department
+# Drop index on department (dropIndex)
 - db.employees.dropIndex({ department: 1 })
+
+
+
+## Aggregate and Group By (aggregation queries)
+
+# Total salary of all employees (aggregation + $sum - group all)
+- db.employees.aggregate([
+  { $group: { _id: null, totalSalary: { $sum: "$salary" } } }
+])
+
+
+
+# Count of employees in each department ($group by department + $sum)
+- db.employees.aggregate([
+  { $group: { _id: "$department", count: { $sum: 1 } } }
+])
+
+
+
+# Average salary by department ($group + $avg)
+- db.employees.aggregate([
+  { $group: { _id: "$department", avgSalary: { $avg: "$salary" } } }
+])
+
+
+
+# Max salary in each department ($group + $max)
+- db.employees.aggregate([
+  { $group: { _id: "$department", maxSalary: { $max: "$salary" } } }
+])
+
+
+
+# List employees with only selected fields (projection using $project)
+- db.employees.aggregate([
+  { $project: { _id: 0, Name: { $concat: ["$first_name", " ", "$last_name"] }, Department: "$department", Salary: "$salary" } }
+])
+
+
+
+# Find employees hired after 2020 and group by department ($match + $group)
+- db.employees.aggregate([
+  { $match: { hire_date: { $gt: "2020-01-01" } } },
+  { $group: { _id: "$department", count: { $sum: 1 } } }
+])
+
+
+
+# Sort by salary in aggregation pipeline ($sort)
+- db.employees.aggregate([
+  { $sort: { salary: -1 } }
+])
+
+
+
+# Count of employees per year of hiring (extract year using $project + $group)
+- db.employees.aggregate([
+  {
+    $project: {
+      hire_year: { $substr: ["$hire_date", 0, 4] }
+    }
+  },
+  {
+    $group: {
+      _id: "$hire_year",
+      total: { $sum: 1 }
+    }
+  },
+  { $sort: { _id: 1 } }
+])
 
 
