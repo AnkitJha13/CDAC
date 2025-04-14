@@ -11,7 +11,7 @@ CREATE TABLE dept (
   loc VARCHAR(13)
 );
 
--- 4. Create emp table
+-- Create emp table
 CREATE TABLE emp (
   empno DECIMAL(4,0) PRIMARY KEY,
   ename VARCHAR(10),
@@ -25,7 +25,7 @@ CREATE TABLE emp (
 );
 
 
--- Create DeletedEmployees table for trigger logging
+-- Table to log deleted employee data using BEFORE DELETE trigger
 CREATE TABLE DeletedEmployees (
   empno INT,
   ename VARCHAR(10),
@@ -33,7 +33,7 @@ CREATE TABLE DeletedEmployees (
 );
 
 
--- Create SalaryHistory table for AFTER UPDATE trigger
+-- Table to record salary history using AFTER UPDATE trigger
 CREATE TABLE SalaryHistory (
   empno INT,
   old_salary DECIMAL(7,2),
@@ -72,7 +72,7 @@ INSERT INTO emp VALUES
 -- STORED PROCEDURES
 -- ======================================
 
--- To create a stored procedure without any parameters
+-- Simple procedure to get all employees
 DELIMITER //
 CREATE PROCEDURE GetAllEmployees()
 BEGIN
@@ -85,7 +85,7 @@ CALL GetAllEmployees();
 
 
 
--- Retrieve Employee Details by Department (using only IN parameters)
+-- Procedure to get employees by department ID (IN parameter)
 DELIMITER //
 CREATE PROCEDURE GetEmployeesByDept(IN dept_id INT)
 BEGIN
@@ -101,7 +101,7 @@ Call GetEmployeesByDept(20);
 
 
 
--- Insert New Employee Record
+-- Procedure to insert a new employee
 DELIMITER //
 Create Procedure InsertEmployee(
   In p_empno decimal(4,0), in p_ename varchar(10),  in p_job varchar(9), in p_mgr decimal(4,0), 
@@ -123,7 +123,7 @@ select * from emp;
 
 
 
--- Delete Employees by Experience
+-- Procedure to delete employees with experience less than given years
 DELIMITER //
 CREATE PROCEDURE DeleteEmployeesByExperience(IN min_exp INT)
 BEGIN
@@ -144,7 +144,7 @@ DROP PROCEDURE IF EXISTS DeleteEmployeesByExperience;
 
 
 
--- Generate Employee Count Report
+-- Procedure to generate a report of employee count grouped by department
 DELIMITER //
 CREATE PROCEDURE EmployeeCountReport()
 BEGIN
@@ -160,7 +160,7 @@ CALL EmployeeCountReport();
 
 
 
--- Retrieve Employee Count by Department (using IN and OUT parameters)
+-- Procedure using IN and OUT parameters to get employee count by department
 DELIMITER //
 CREATE PROCEDURE GetEmployeeCount(IN dept_id INT, OUT emp_count INT)
 BEGIN
@@ -179,7 +179,7 @@ select @emp_count;
 
 
 
--- Calculate Total Salary in a Department
+-- Procedure to calculate total salary in a department (IN + OUT)
 DELIMITER //
 CREATE PROCEDURE GetTotalSalary(IN dept_id INT, OUT total_salary DECIMAL(10,2))
 BEGIN
@@ -199,7 +199,7 @@ DROP PROCEDURE IF EXISTS GetTotalSalary;
 
 
 
--- Find Maximum Salary in a Department
+-- Procedure to find max salary in a department
 DELIMITER //
 CREATE PROCEDURE GetMaxSalaryByDept(IN dept_id INT, OUT max_salary DECIMAL(7,2))
 BEGIN
@@ -280,7 +280,7 @@ select * from emp;
 
 
 
--- to use IF-ELSE inside a procedure (to check salary status of a particular employee)
+-- Procedure using IF-ELSE to check salary status
 DELIMITER //
 CREATE PROCEDURE CheckSalaryLevelByEmpID(IN emp_id INT)
 BEGIN
@@ -311,7 +311,7 @@ select * from dept;
 
 
 
--- to search a particular dept id work location
+-- Procedure using CASE to get department location by ID
 DELIMITER //
 CREATE PROCEDURE GetDeptLocation(IN dept_id INT)
 BEGIN
@@ -334,7 +334,7 @@ DROP PROCEDURE IF EXISTS GetDeptLocation;
 -- TRIGGERS
 -- ======================================
 
--- BEFORE DELETE trigger to log deleted employees
+-- BEFORE DELETE trigger to log employee data before deletion
 DELIMITER //
 CREATE TRIGGER before_delete_emp
 BEFORE DELETE ON emp
@@ -356,7 +356,7 @@ select * from DeletedEmployees;
 
 
 
--- AFTER UPDATE trigger to track salary changes
+-- AFTER UPDATE trigger to log salary changes
 DELIMITER //
 CREATE TRIGGER after_update_salary
 AFTER UPDATE ON emp
@@ -371,7 +371,7 @@ DELIMITER ;
 
 
 
--- 🔔 CALLING TRIGGER: Update salary of an employee to trigger `after_update_salary`
+-- Update salary of an employee to trigger `after_update_salary`
 UPDATE emp SET sal = sal + 100 WHERE empno = 7900; -- This will add a record in SalaryHistory
 
 
@@ -388,25 +388,26 @@ SELECT * FROM SalaryHistory;
 -- VIEWS 
 -- ======================================
 
+-- View to show employees with high salaries
 CREATE OR REPLACE VIEW HighSalaryEmployees AS
 SELECT empno, ename, sal, deptno FROM emp WHERE sal > 2500;
 
---  View high salary employees
 SELECT * FROM HighSalaryEmployees;
 
 
 
 
+-- View to show employees with no manager
 CREATE OR REPLACE VIEW EmployeesWithoutManager AS
 SELECT * FROM emp WHERE mgr IS NULL;
 
--- View employees who don't have a manager
+
 SELECT * FROM EmployeesWithoutManager;
 
 
 
 -- ======================================
--- Simple SQL 
+-- SIMPLE SQL QUERIES 
 -- ======================================
 
 -- Total salary grouped by department
