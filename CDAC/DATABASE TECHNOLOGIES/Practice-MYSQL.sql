@@ -42,6 +42,25 @@ SELECT * FROM Department;
 SELECT * FROM Employee;
 
 
+-- If missed adding Primary and Foreign keys
+-- Add Primary Key to Department
+ALTER TABLE Department
+ADD PRIMARY KEY (dept_id);
+
+
+-- Add Primary Key to EmployeeDetails
+ALTER TABLE EmployeeDetails
+ADD PRIMARY KEY (empid);
+
+
+-- Add Foreign Key from EmployeeDetails to Department
+ALTER TABLE EmployeeDetails
+ADD CONSTRAINT fk_emp_dept
+FOREIGN KEY (dept_id) REFERENCES Department(dept_id)
+ON DELETE CASCADE;
+
+
+
 
 -- Rename Table
 ALTER TABLE Employee RENAME TO EmployeeDetails;
