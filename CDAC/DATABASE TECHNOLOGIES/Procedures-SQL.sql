@@ -1,56 +1,76 @@
 create database practiceProcedures;
 
-use practiceProcedures;
+USE practiceProcedures;
 
 
-CREATE TABLE emp (
-  empno decimal(4,0) NOT NULL,
-  ename varchar(10) default NULL,
-  job varchar(9) default NULL,
-  mgr decimal(4,0) default NULL,
-  hiredate date default NULL,
-  sal decimal(7,2) default NULL,
-  comm decimal(7,2) default NULL,
-  deptno decimal(2,0) default NULL
-);
 
-
+-- Create dept table
 CREATE TABLE dept (
-  deptno decimal(2,0) default NULL,
-  dname varchar(14) default NULL,
-  loc varchar(13) default NULL
+  deptno DECIMAL(2,0) PRIMARY KEY,
+  dname VARCHAR(14),
+  loc VARCHAR(13)
 );
+
+-- 4. Create emp table
+CREATE TABLE emp (
+  empno DECIMAL(4,0) PRIMARY KEY,
+  ename VARCHAR(10),
+  job VARCHAR(9),
+  mgr DECIMAL(4,0),
+  hiredate DATE,
+  sal DECIMAL(7,2),
+  comm DECIMAL(7,2),
+  deptno DECIMAL(2,0),
+  FOREIGN KEY (deptno) REFERENCES dept(deptno)
+);
+
+
+-- Create DeletedEmployees table for trigger logging
+CREATE TABLE DeletedEmployees (
+  empno INT,
+  ename VARCHAR(10),
+  deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- Create SalaryHistory table for AFTER UPDATE trigger
+CREATE TABLE SalaryHistory (
+  empno INT,
+  old_salary DECIMAL(7,2),
+  new_salary DECIMAL(7,2),
+  changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+-- Insert sample data
+INSERT INTO dept VALUES 
+(10,'ACCOUNTING','NEW YORK'),
+(20,'RESEARCH','DALLAS'),
+(30,'SALES','CHICAGO'),
+(40,'OPERATIONS','BOSTON');
+
 
 
 INSERT INTO emp VALUES 
-('7369','SMITH','CLERK','7902','1980-12-17','800.00',NULL,'20'),
-('7499','ALLEN','SALESMAN','7698','1981-02-20','1600.00','300.00','30'),
-('7521','WARD','SALESMAN','7698','1981-02-22','1250.00','500.00','30'),
-('7566','JONES','MANAGER','7839','1981-04-02','2975.00',NULL,'20'),
-('7654','MARTIN','SALESMAN','7698','1981-09-28','1250.00','1400.00','30'),
-('7698','BLAKE','MANAGER','7839','1981-05-01','2850.00',NULL,'30'),
-('7782','CLARK','MANAGER','7839','1981-06-09','2450.00',NULL,'10'),
- ('7788','SCOTT','ANALYST','7566','1982-12-09','3000.00',NULL,'20'),
-('7839','KING','PRESIDENT',NULL,'1981-11-17','5000.00',NULL,'10'),
-('7844','TURNER','SALESMAN','7698','1981-09-08','1500.00','0.00','30'),
-('7876','ADAMS','CLERK','7788','1983-01-12','1100.00',NULL,'20'),
-('7900','JAMES','CLERK','7698','1981-12-03','950.00',NULL,'30'),
-('7902','FORD','ANALYST','7566','1981-12-03','3000.00',NULL,'20'),
-('7934','MILLER','CLERK','7782','1982-01-23','1300.00',NULL,'10');
+(7369,'SMITH','CLERK',7902,'1980-12-17',800,NULL,20),
+(7499,'ALLEN','SALESMAN',7698,'1981-02-20',1600,300,30),
+(7521,'WARD','SALESMAN',7698,'1981-02-22',1250,500,30),
+(7566,'JONES','MANAGER',7839,'1981-04-02',2975,NULL,20),
+(7698,'BLAKE','MANAGER',7839,'1981-05-01',2850,NULL,30),
+(7782,'CLARK','MANAGER',7839,'1981-06-09',2450,NULL,10),
+(7839,'KING','PRESIDENT',NULL,'1981-11-17',5000,NULL,10),
+(7844,'TURNER','SALESMAN',7698,'1981-09-08',1500,0,30),
+(7876,'ADAMS','CLERK',7788,'1983-01-12',1100,NULL,20),
+(7900,'JAMES','CLERK',7698,'1981-12-03',950,NULL,30),
+(7902,'FORD','ANALYST',7566,'1981-12-03',3000,NULL,20),
+(7934,'MILLER','CLERK',7782,'1982-01-23',1300,NULL,10);
 
 
 
-INSERT INTO dept VALUES 
-('10','ACCOUNTING','NEW YORK'),
-('20','RESEARCH','DALLAS'),
-('30','SALES','CHICAGO'),
-('40','OPERATIONS','BOSTON');
-
-
-select * from emp;
-
-select * from dept;
-
+-- ======================================
+-- STORED PROCEDURES
+-- ======================================
 
 -- To create a stored procedure without any parameters
 DELIMITER //
@@ -63,6 +83,8 @@ DELIMITER ;
 CALL GetAllEmployees();
 
 
+
+
 -- Retrieve Employee Details by Department (using only IN parameters)
 DELIMITER //
 CREATE PROCEDURE GetEmployeesByDept(IN dept_id INT)
@@ -73,7 +95,9 @@ BEGIN
 END //
 DELIMITER ;
 
-Call GetEmployeesByDept(10);
+Call GetEmployeesByDept(20);
+
+
 
 
 
@@ -89,8 +113,12 @@ values (p_empno, p_ename, p_job, p_mgr, p_hiredate, p_sal, p_comm, p_deptno);
 END //
 DELIMITER ;
 
+
 Call InsertEmployee(7935, 'ashton', 'analyst', 7821, '1988-07-12', 1200.00, 0, 20);
 
+
+-- to check new inserted data
+select * from emp;
 
 
 
@@ -107,10 +135,11 @@ DELIMITER ;
 
 CALL DeleteEmployeesByExperience(5);
 
-
 select * from emp;
 
+
 DROP PROCEDURE IF EXISTS DeleteEmployeesByExperience;
+
 
 
 
@@ -150,7 +179,6 @@ select @emp_count;
 
 
 
-
 -- Calculate Total Salary in a Department
 DELIMITER //
 CREATE PROCEDURE GetTotalSalary(IN dept_id INT, OUT total_salary DECIMAL(10,2))
@@ -161,11 +189,13 @@ BEGIN
 END //
 DELIMITER ;
 
+
 SET @total_salary = 0;
 CALL GetTotalSalary(30, @total_salary);
 SELECT @total_salary;
 
 
+DROP PROCEDURE IF EXISTS GetTotalSalary;
 
 
 
@@ -179,10 +209,10 @@ BEGIN
 END //
 DELIMITER ;
 
+
 SET @max_salary = 0;
 CALL GetMaxSalaryByDept(20, @max_salary);
 SELECT @max_salary;
-
 
 
 
@@ -202,7 +232,10 @@ CALL UpdateSalaryByPercentage(20, 10);
 
 select * from emp;
 
-DROP PROCEDURE IF EXISTS UpdateSalaryByPercentage;
+
+
+
+
 
 
 -- Update Employee Salary by 15% based on emp id 
@@ -221,10 +254,12 @@ DELIMITER ;
 CALL UpdateSalaryByEmpID(7369, 15);
 
 
+select * from emp;
 
 
 
-	
+
+
 -- Get Employee Details by ID
 DELIMITER //
 CREATE PROCEDURE GetEmployeeDetailsByID(IN emp_id INT, OUT emp_name VARCHAR(10), OUT emp_salary DECIMAL(7,2))
@@ -239,9 +274,9 @@ SET @emp_name = '', @emp_salary = 0;
 CALL GetEmployeeDetailsByID(7566, @emp_name, @emp_salary);
 SELECT @emp_name, @emp_salary;
 
-
-
 select * from emp;
+
+
 
 
 
@@ -274,6 +309,8 @@ select * from dept;
 
 
 
+
+
 -- to search a particular dept id work location
 DELIMITER //
 CREATE PROCEDURE GetDeptLocation(IN dept_id INT)
@@ -290,5 +327,229 @@ DELIMITER ;
 CALL GetDeptLocation(10);
 
 
+DROP PROCEDURE IF EXISTS GetDeptLocation;
 
 
+-- ======================================
+-- TRIGGERS
+-- ======================================
+
+-- BEFORE DELETE trigger to log deleted employees
+DELIMITER //
+CREATE TRIGGER before_delete_emp
+BEFORE DELETE ON emp
+FOR EACH ROW
+BEGIN
+  INSERT INTO DeletedEmployees(empno, ename)
+  VALUES (OLD.empno, OLD.ename);
+END //
+DELIMITER ;
+
+
+DELETE FROM emp WHERE empno = 7935;  -- This will insert into DeletedEmployees
+
+select * from emp;
+
+-- deleted data from trigger gets stored in this table 
+select * from DeletedEmployees;  
+
+
+
+
+-- AFTER UPDATE trigger to track salary changes
+DELIMITER //
+CREATE TRIGGER after_update_salary
+AFTER UPDATE ON emp
+FOR EACH ROW
+BEGIN
+  IF OLD.sal <> NEW.sal THEN
+    INSERT INTO SalaryHistory(empno, old_salary, new_salary)
+    VALUES (OLD.empno, OLD.sal, NEW.sal);
+  END IF;
+END //
+DELIMITER ;
+
+
+
+-- 🔔 CALLING TRIGGER: Update salary of an employee to trigger `after_update_salary`
+UPDATE emp SET sal = sal + 100 WHERE empno = 7900; -- This will add a record in SalaryHistory
+
+
+select * from emp;
+
+
+-- updated data from trigger gets stored here
+SELECT * FROM SalaryHistory;
+
+
+
+
+-- ======================================
+-- VIEWS 
+-- ======================================
+
+CREATE OR REPLACE VIEW HighSalaryEmployees AS
+SELECT empno, ename, sal, deptno FROM emp WHERE sal > 2500;
+
+--  View high salary employees
+SELECT * FROM HighSalaryEmployees;
+
+
+
+
+CREATE OR REPLACE VIEW EmployeesWithoutManager AS
+SELECT * FROM emp WHERE mgr IS NULL;
+
+-- View employees who don't have a manager
+SELECT * FROM EmployeesWithoutManager;
+
+
+
+-- ======================================
+-- Simple SQL 
+-- ======================================
+
+-- Total salary grouped by department
+SELECT deptno, SUM(sal) AS total_salary
+FROM emp
+GROUP BY deptno;
+
+
+
+-- List employees with experience in years
+SELECT empno, ename, TIMESTAMPDIFF(YEAR, hiredate, CURDATE()) AS experience_years
+FROM emp;
+
+
+
+-- Get department name using employee ID
+SELECT e.empno, e.ename, d.dname
+FROM emp e
+JOIN dept d ON e.deptno = d.deptno
+WHERE e.empno = 7566;
+
+
+-- Get highest-paid employee in each department
+SELECT deptno, empno, ename, sal
+FROM emp e
+WHERE sal = (
+    SELECT MAX(sal)
+    FROM emp
+    WHERE deptno = e.deptno
+)
+ORDER BY deptno;
+
+
+
+-- Count employees per department
+SELECT deptno, COUNT(*) AS employee_count
+FROM emp
+GROUP BY deptno;
+
+
+-- ======================================
+-- FUNCTION 
+-- ======================================
+
+-- Function: Return Total Salary by Department ID
+DELIMITER //
+CREATE FUNCTION GetDeptTotalSalary(dept_id INT)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE total DECIMAL(10,2);
+    SELECT SUM(sal) INTO total
+    FROM emp
+    WHERE deptno = dept_id;
+    RETURN total;
+END //
+DELIMITER ;
+
+-- Example call:
+SELECT GetDeptTotalSalary(20) AS total_salary;
+
+
+
+
+-- Function: Get Employee Experience in Years
+DELIMITER //
+CREATE FUNCTION GetEmployeeExperience(emp_id INT)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE years INT;
+    SELECT TIMESTAMPDIFF(YEAR, hiredate, CURDATE()) INTO years
+    FROM emp
+    WHERE empno = emp_id;
+    RETURN years;
+END //
+DELIMITER ;
+
+
+-- Example call:
+SELECT GetEmployeeExperience(7369) AS experience_years;
+
+
+
+
+-- Function: Get Department Name by Employee ID
+DELIMITER //
+CREATE FUNCTION GetDeptNameByEmpID(emp_id INT)
+RETURNS VARCHAR(14)
+DETERMINISTIC
+BEGIN
+    DECLARE dept_name VARCHAR(14);
+    SELECT d.dname INTO dept_name
+    FROM emp e
+    JOIN dept d ON e.deptno = d.deptno
+    WHERE e.empno = emp_id;
+    RETURN dept_name;
+END //
+DELIMITER ;
+
+
+-- Example call:
+SELECT GetDeptNameByEmpID(7369) AS department_name;
+
+
+
+
+-- Function: Highest-Paid Employee in a Given Department
+DELIMITER //
+CREATE FUNCTION GetHighestPaidEmpName(dept_id INT)
+RETURNS VARCHAR(10)
+DETERMINISTIC
+BEGIN
+    DECLARE emp_name VARCHAR(10);
+    SELECT ename INTO emp_name
+    FROM emp
+    WHERE deptno = dept_id
+    ORDER BY sal DESC
+    LIMIT 1;
+    RETURN emp_name;
+END //
+DELIMITER ;
+
+-- Example call:
+SELECT GetHighestPaidEmpName(30) AS top_earner;
+
+
+
+
+-- Function: Count Employees in a Given Department
+DELIMITER //
+CREATE FUNCTION CountEmployeesInDept(dept_id INT)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE emp_count INT;
+    SELECT COUNT(*) INTO emp_count
+    FROM emp
+    WHERE deptno = dept_id;
+    RETURN emp_count;
+END //
+DELIMITER ;
+
+
+-- Example call:
+SELECT CountEmployeesInDept(10) AS total_employees;
