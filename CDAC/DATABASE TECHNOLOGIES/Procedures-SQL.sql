@@ -21,8 +21,10 @@ CREATE TABLE emp (
   sal DECIMAL(7,2),
   comm DECIMAL(7,2),
   deptno DECIMAL(2,0),
+  birthdate DATE DEFAULT '1990-01-01',
   FOREIGN KEY (deptno) REFERENCES dept(deptno)
 );
+
 
 
 -- Table to log deleted employee data using BEFORE DELETE trigger
@@ -43,6 +45,28 @@ CREATE TABLE SalaryHistory (
 
 
 
+-- Table to store average age
+CREATE TABLE average_age (
+  average DOUBLE
+);
+
+
+-- Person table for BEFORE DELETE trigger demo
+CREATE TABLE person (
+  name VARCHAR(45),
+  age INT
+);
+
+
+-- Archive for deleted people (trigger)
+CREATE TABLE person_archive (
+  name VARCHAR(45),
+  age INT,
+  time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
 -- Insert sample data
 INSERT INTO dept VALUES 
 (10,'ACCOUNTING','NEW YORK'),
@@ -53,19 +77,30 @@ INSERT INTO dept VALUES
 
 
 INSERT INTO emp VALUES 
-(7369,'SMITH','CLERK',7902,'1980-12-17',800,NULL,20),
-(7499,'ALLEN','SALESMAN',7698,'1981-02-20',1600,300,30),
-(7521,'WARD','SALESMAN',7698,'1981-02-22',1250,500,30),
-(7566,'JONES','MANAGER',7839,'1981-04-02',2975,NULL,20),
-(7698,'BLAKE','MANAGER',7839,'1981-05-01',2850,NULL,30),
-(7782,'CLARK','MANAGER',7839,'1981-06-09',2450,NULL,10),
-(7839,'KING','PRESIDENT',NULL,'1981-11-17',5000,NULL,10),
-(7844,'TURNER','SALESMAN',7698,'1981-09-08',1500,0,30),
-(7876,'ADAMS','CLERK',7788,'1983-01-12',1100,NULL,20),
-(7900,'JAMES','CLERK',7698,'1981-12-03',950,NULL,30),
-(7902,'FORD','ANALYST',7566,'1981-12-03',3000,NULL,20),
-(7934,'MILLER','CLERK',7782,'1982-01-23',1300,NULL,10);
+(7369,'SMITH','CLERK',7902,'1980-12-17',800,NULL,20,'1990-05-12'),
+(7499,'ALLEN','SALESMAN',7698,'1981-02-20',1600,300,30,'1985-08-10'),
+(7521,'WARD','SALESMAN',7698,'1981-02-22',1250,500,30,'1984-06-01'),
+(7566,'JONES','MANAGER',7839,'1981-04-02',2975,NULL,20,'1980-01-15'),
+(7698,'BLAKE','MANAGER',7839,'1981-05-01',2850,NULL,30,'1978-11-11'),
+(7782,'CLARK','MANAGER',7839,'1981-06-09',2450,NULL,10,'1977-07-07'),
+(7839,'KING','PRESIDENT',NULL,'1981-11-17',5000,NULL,10,'1975-03-03'),
+(7844,'TURNER','SALESMAN',7698,'1981-09-08',1500,0,30,'1986-12-12'),
+(7876,'ADAMS','CLERK',7788,'1983-01-12',1100,NULL,20,'1989-09-09'),
+(7900,'JAMES','CLERK',7698,'1981-12-03',950,NULL,30,'1991-01-01'),
+(7902,'FORD','ANALYST',7566,'1981-12-03',3000,NULL,20,'1979-02-02'),
+(7934,'MILLER','CLERK',7782,'1982-01-23',1300,NULL,10,'1990-11-11');
 
+
+
+-- Insert sample data into person table
+INSERT INTO person VALUES
+('John Doe', 35),
+('Jane Smith', 29);
+
+
+-- Average age calculation initially 
+INSERT INTO average_age 
+SELECT AVG(TIMESTAMPDIFF(YEAR, birthdate, CURDATE())) FROM emp;
 
 
 -- ======================================
@@ -81,6 +116,7 @@ END //
 DELIMITER ;
 
 CALL GetAllEmployees();
+
 
 
 
@@ -114,7 +150,7 @@ END //
 DELIMITER ;
 
 
-Call InsertEmployee(7935, 'ashton', 'analyst', 7821, '1988-07-12', 1200.00, 0, 20);
+Call InsertEmployee(7936, 'Athena', 'analyst', 7821, '2024-07-12', 1200.00, 0, 20);
 
 
 -- to check new inserted data
@@ -180,7 +216,6 @@ select @emp_count;
 
 
 
-
 -- Procedure to calculate total salary in a department (IN + OUT)
 DELIMITER //
 CREATE PROCEDURE GetTotalSalary(IN dept_id INT, OUT total_salary DECIMAL(10,2))
@@ -230,6 +265,7 @@ BEGIN
 END //
 DELIMITER ;
 
+
 CALL UpdateSalaryByPercentage(20, 10);
 
 select * from emp;
@@ -255,8 +291,8 @@ DELIMITER ;
 
 CALL UpdateSalaryByEmpID(7369, 15);
 
-
 select * from emp;
+
 
 
 
@@ -272,11 +308,13 @@ BEGIN
 END //
 DELIMITER ;
 
+
 SET @emp_name = '', @emp_salary = 0;
 CALL GetEmployeeDetailsByID(7566, @emp_name, @emp_salary);
 SELECT @emp_name, @emp_salary;
 
 select * from emp;
+
 
 
 
@@ -305,6 +343,7 @@ CALL CheckSalaryLevelByEmpID(7566); -- it will display the status for a particul
 
 
 
+
 select * from emp;
 select * from dept;
 
@@ -329,7 +368,6 @@ DELIMITER ;
 CALL GetDeptLocation(10);
 
 
-DROP PROCEDURE IF EXISTS GetDeptLocation;
 
 
 -- ======================================
@@ -358,6 +396,8 @@ select * from DeletedEmployees;
 
 
 
+
+
 -- AFTER UPDATE trigger to log salary changes
 DELIMITER //
 CREATE TRIGGER after_update_salary
@@ -374,7 +414,9 @@ DELIMITER ;
 
 
 -- Update salary of an employee to trigger `after_update_salary`
-UPDATE emp SET sal = sal + 100 WHERE empno = 7900; -- This will add a record in SalaryHistory
+UPDATE emp 
+SET sal = sal + 100
+WHERE empno = 7900; -- This will add a record in SalaryHistory
 
 
 select * from emp;
@@ -386,9 +428,116 @@ SELECT * FROM SalaryHistory;
 
 
 
--- ======================================
+
+
+-- AFTER INSERT on emp Update average age
+DELIMITER //
+CREATE TRIGGER after_insert_emp
+AFTER INSERT ON emp
+FOR EACH ROW
+BEGIN
+  SET SQL_SAFE_UPDATES = 0;
+  UPDATE average_age 
+  SET average = (SELECT AVG(TIMESTAMPDIFF(YEAR, birthdate, CURDATE())) FROM emp);
+  SET SQL_SAFE_UPDATES = 1;
+END //
+DELIMITER ;
+
+
+-- to drop a trigger
+drop trigger if exists after_insert_emp;
+
+
+-- 🔽 Insert employee to trigger AFTER INSERT
+INSERT INTO emp(empno, ename, birthdate, sal)
+VALUES (9001, 'New Joiner', '1995-05-05', 3000);
+
+-- 🔍 Check average age
+SELECT * FROM average_age;
+
+
+
+
+
+
+-- AFTER DELETE on emp → Update average age
+DELIMITER //
+CREATE TRIGGER after_delete_emp
+AFTER DELETE ON emp
+FOR EACH ROW
+BEGIN
+  SET SQL_SAFE_UPDATES = 0;
+  UPDATE average_age 
+  SET average = (SELECT AVG(TIMESTAMPDIFF(YEAR, birthdate, CURDATE())) FROM emp);
+  SET SQL_SAFE_UPDATES = 1;
+END //
+DELIMITER ;
+
+
+-- Delete another employee to trigger AFTER DELETE
+DELETE FROM emp WHERE empno = 7839;
+
+-- 🔍 Check updated average age
+SELECT * FROM average_age;
+
+
+
+
+
+
+-- BEFORE UPDATE on emp → Block underage employees
+DELIMITER //
+CREATE TRIGGER block_underage_update
+BEFORE UPDATE ON emp
+FOR EACH ROW
+BEGIN
+  IF TIMESTAMPDIFF(YEAR, NEW.birthdate, CURDATE()) < 18 THEN
+    SIGNAL SQLSTATE '50002' SET MESSAGE_TEXT = 'Person must be older than 18.';
+  END IF;
+END //
+DELIMITER ;
+
+
+-- this will fail as the person age must be older than 18
+UPDATE emp SET birthdate = '2010-01-01' WHERE empno = 7900;
+
+
+
+
+
+
+
+
+-- BEFORE DELETE on person → Archive deleted people
+DELIMITER //
+CREATE TRIGGER archive_person_before_delete
+BEFORE DELETE ON person
+FOR EACH ROW
+BEGIN
+  INSERT INTO person_archive(name, age)
+  VALUES (OLD.name, OLD.age);
+END //
+DELIMITER ;
+
+
+drop trigger if exists archive_person_before_delete;
+
+
+-- Delete a person to trigger BEFORE DELETE on person
+SET SQL_SAFE_UPDATES = 0;
+DELETE FROM person WHERE name = 'John Doe';
+SET SQL_SAFE_UPDATES = 1;
+
+-- View archived people
+SELECT * FROM person_archive;
+
+
+
+
+
+-- ============================================
 -- VIEWS 
--- ======================================
+-- ============================================
 
 -- View to show employees with high salaries
 CREATE OR REPLACE VIEW HighSalaryEmployees AS
@@ -472,6 +621,11 @@ DELIMITER ;
 SELECT GetDeptTotalSalary(20) AS total_salary;
 
 
+-- to drop a function
+drop function if exists GetDeptTotalSalary;
+
+
+
 
 
 -- Function: Get Employee Experience in Years
@@ -491,6 +645,8 @@ DELIMITER ;
 
 -- Example call:
 SELECT GetEmployeeExperience(7369) AS experience_years;
+
+
 
 
 
@@ -517,6 +673,9 @@ SELECT GetDeptNameByEmpID(7369) AS department_name;
 
 
 
+
+
+
 -- Function: Highest-Paid Employee in a Given Department
 DELIMITER //
 CREATE FUNCTION GetHighestPaidEmpName(dept_id INT)
@@ -539,6 +698,8 @@ SELECT GetHighestPaidEmpName(30) AS top_earner;
 
 
 
+
+
 -- Function: Count Employees in a Given Department
 DELIMITER //
 CREATE FUNCTION CountEmployeesInDept(dept_id INT)
@@ -556,3 +717,4 @@ DELIMITER ;
 
 -- Example call:
 SELECT CountEmployeesInDept(10) AS total_employees;
+
