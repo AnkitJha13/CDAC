@@ -1,6 +1,6 @@
 create database practiceProcedures;
 
-USE practiceProcedures;
+use practiceProcedures;
 
 
 
