@@ -133,6 +133,8 @@ BEGIN
 END //
 DELIMITER ;
 
+
+-- delete all employees who have less than 5 years of experience.
 CALL DeleteEmployeesByExperience(5);
 
 select * from emp;
