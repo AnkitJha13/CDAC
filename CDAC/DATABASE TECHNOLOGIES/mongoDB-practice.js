@@ -237,9 +237,21 @@
 
 
 
-# Count of employees in each department ($group by department + $sum)
+# Count of employees in each department (gives employees count dept wise)
 - db.employees.aggregate([
   { $group: { _id: "$department", count: { $sum: 1 } } }
+])
+
+
+
+# Count of total employees
+- db.employees.aggregate([
+  {
+    $group: {
+      _id: null,               // No grouping by field, just one group
+      totalCount: { $sum: 1 }  // Count every document
+    }
+  }
 ])
 
 
