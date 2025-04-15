@@ -374,7 +374,7 @@ CALL GetDeptLocation(10);
 -- TRIGGERS
 -- ======================================
 
--- BEFORE DELETE trigger to log employee data before deletion
+-- Log employee details before deletion
 DELIMITER //
 CREATE TRIGGER before_delete_emp
 BEFORE DELETE ON emp
@@ -385,20 +385,21 @@ BEGIN
 END //
 DELIMITER ;
 
+-- Delete to trigger logging
+DELETE FROM emp WHERE empno = 7935;
 
-DELETE FROM emp WHERE empno = 7935;  -- This will insert into DeletedEmployees
+-- Check current employees
+SELECT * FROM emp;
 
-select * from emp;
-
--- deleted data from trigger gets stored in this table 
-select * from DeletedEmployees;  
-
-
-
+-- Check logged deleted employees
+SELECT * FROM DeletedEmployees;
 
 
 
--- AFTER UPDATE trigger to log salary changes
+
+
+
+-- Track salary changes after update
 DELIMITER //
 CREATE TRIGGER after_update_salary
 AFTER UPDATE ON emp
@@ -411,18 +412,15 @@ BEGIN
 END //
 DELIMITER ;
 
-
-
--- Update salary of an employee to trigger `after_update_salary`
+-- Update to trigger salary history
 UPDATE emp 
 SET sal = sal + 100
-WHERE empno = 7900; -- This will add a record in SalaryHistory
+WHERE empno = 7900;
 
+-- View updated employees
+SELECT * FROM emp;
 
-select * from emp;
-
-
--- updated data from trigger gets stored here
+-- View salary change history
 SELECT * FROM SalaryHistory;
 
 
@@ -430,7 +428,8 @@ SELECT * FROM SalaryHistory;
 
 
 
--- AFTER INSERT on emp Update average age
+
+-- Update average age after insert
 DELIMITER //
 CREATE TRIGGER after_insert_emp
 AFTER INSERT ON emp
@@ -443,16 +442,14 @@ BEGIN
 END //
 DELIMITER ;
 
+-- Drop trigger if needed
+DROP TRIGGER IF EXISTS after_insert_emp;
 
--- to drop a trigger
-drop trigger if exists after_insert_emp;
-
-
--- 🔽 Insert employee to trigger AFTER INSERT
+-- Insert new employee
 INSERT INTO emp(empno, ename, birthdate, sal)
 VALUES (9001, 'New Joiner', '1995-05-05', 3000);
 
--- 🔍 Check average age
+-- View average age
 SELECT * FROM average_age;
 
 
@@ -460,7 +457,8 @@ SELECT * FROM average_age;
 
 
 
--- AFTER DELETE on emp → Update average age
+
+-- Update average age after delete
 DELIMITER //
 CREATE TRIGGER after_delete_emp
 AFTER DELETE ON emp
@@ -473,11 +471,10 @@ BEGIN
 END //
 DELIMITER ;
 
-
--- Delete another employee to trigger AFTER DELETE
+-- Delete employee to update average age
 DELETE FROM emp WHERE empno = 7839;
 
--- 🔍 Check updated average age
+-- Check new average age
 SELECT * FROM average_age;
 
 
@@ -485,7 +482,8 @@ SELECT * FROM average_age;
 
 
 
--- BEFORE UPDATE on emp → Block underage employees
+
+-- Block update if age is under 18
 DELIMITER //
 CREATE TRIGGER block_underage_update
 BEFORE UPDATE ON emp
@@ -497,8 +495,7 @@ BEGIN
 END //
 DELIMITER ;
 
-
--- this will fail as the person age must be older than 18
+-- This update will fail due to age check
 UPDATE emp SET birthdate = '2010-01-01' WHERE empno = 7900;
 
 
@@ -507,8 +504,7 @@ UPDATE emp SET birthdate = '2010-01-01' WHERE empno = 7900;
 
 
 
-
--- BEFORE DELETE on person → Archive deleted people
+-- Archive person before deletion
 DELIMITER //
 CREATE TRIGGER archive_person_before_delete
 BEFORE DELETE ON person
@@ -519,19 +515,16 @@ BEGIN
 END //
 DELIMITER ;
 
+-- Drop the trigger if needed
+DROP TRIGGER IF EXISTS archive_person_before_delete;
 
-drop trigger if exists archive_person_before_delete;
-
-
--- Delete a person to trigger BEFORE DELETE on person
+-- Delete to trigger archive
 SET SQL_SAFE_UPDATES = 0;
 DELETE FROM person WHERE name = 'John Doe';
 SET SQL_SAFE_UPDATES = 1;
 
--- View archived people
+-- View archived records
 SELECT * FROM person_archive;
-
-
 
 
 
