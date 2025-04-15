@@ -11,7 +11,7 @@ CREATE TABLE Department (
 
 
 
--- Employee Table with DOB and DOJ for extra views
+-- Employee Table
 CREATE TABLE Employee (
     empid INT PRIMARY KEY,
     empname VARCHAR(100) NOT NULL,
@@ -40,6 +40,7 @@ INSERT INTO Department (dept_id, dept_name, location) VALUES
 (2, 'Engineering', 'San Francisco'),
 (3, 'Finance', 'Chicago'),
 (4, 'Marketing', 'Los Angeles');
+
 
 -- Insert Employee Data
 INSERT INTO Employee (empid, empname, DOB, DOJ, age, email, dept_id, salary) VALUES
