@@ -256,6 +256,23 @@
 
 
 
+
+# Count of employees in a particular department
+- db.employees.aggregate([
+  { $match: { department: "Finance" } },             // Filter by department
+  {
+    $group: {
+      _id: null,                                     // No grouping field
+      financeCount: { $sum: 1 }                      // Count documents
+    }
+  }
+])
+
+
+
+
+
+
 # Average salary by department ($group + $avg)
 - db.employees.aggregate([
   { $group: { _id: "$department", avgSalary: { $avg: "$salary" } } }
@@ -307,5 +324,4 @@
   },
   { $sort: { _id: 1 } }
 ])
-
 
