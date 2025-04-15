@@ -9,6 +9,8 @@ CREATE TABLE Department (
     location VARCHAR(100)
 );
 
+
+
 -- Employee Table with DOB and DOJ for extra views
 CREATE TABLE Employee (
     empid INT PRIMARY KEY,
@@ -21,6 +23,16 @@ CREATE TABLE Employee (
     salary DECIMAL(10,2) DEFAULT 30000,
     FOREIGN KEY (dept_id) REFERENCES Department(dept_id) ON DELETE CASCADE
 );
+
+
+
+
+
+-- to drop the tables completely
+DROP TABLE Employee;
+DROP TABLE Department;
+
+
 
 -- Insert Department Data
 INSERT INTO Department (dept_id, dept_name, location) VALUES
@@ -37,27 +49,23 @@ INSERT INTO Employee (empid, empname, DOB, DOJ, age, email, dept_id, salary) VAL
 (4, 'Michael Brown', '1990-11-20', '2010-06-05', 35, 'michael@example.com', 4, 42000),
 (5, 'Chris Green', '1999-01-05', '2022-09-01', 23, 'chris@example.com', NULL, NULL); -- No department
 
+
+
 -- View All Data
 SELECT * FROM Department;
 SELECT * FROM Employee;
 
 
+
+
 -- If missed adding Primary and Foreign keys
 -- Add Primary Key to Department
-ALTER TABLE Department
-ADD PRIMARY KEY (dept_id);
+alter table department 
+add primary key(dept_id);
 
-
--- Add Primary Key to EmployeeDetails
-ALTER TABLE EmployeeDetails
-ADD PRIMARY KEY (empid);
-
-
--- Add Foreign Key from EmployeeDetails to Department
-ALTER TABLE EmployeeDetails
-ADD CONSTRAINT fk_emp_dept
-FOREIGN KEY (dept_id) REFERENCES Department(dept_id)
-ON DELETE CASCADE;
+-- Add Foreign Key to Employee
+ALTER TABLE Employee 
+ADD FOREIGN KEY (dept_id) REFERENCES Department(dept_id) ON DELETE CASCADE;
 
 
 
