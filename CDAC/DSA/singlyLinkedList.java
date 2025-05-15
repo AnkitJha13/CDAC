@@ -61,3 +61,15 @@ public class singlyLinkedList {
         sc.close();
     }
 }
+
+
+
+// Input
+insert 10
+insert 20
+insert 30
+delete 20
+insert 40
+delete 50
+insert 60
+end
