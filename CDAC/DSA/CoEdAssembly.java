@@ -5,17 +5,14 @@ public class CoEdAssembly {
     static class AssemblyQueue {
         List<String> queue = new ArrayList<>();
         int sentToStage = 0;
-        char expectedGender = 'F'; // Start with Female
+        char expectedGender = 'F'; // Always start with Female
 
         void addStudent(String name, char gender) {
-            if (queue.isEmpty()) {
+            if (gender == expectedGender) {
                 queue.add(name);
-                expectedGender = (gender == 'F') ? 'M' : 'F';
-            } else if (gender == expectedGender) {
-                queue.add(name);
-                expectedGender = (gender == 'F') ? 'M' : 'F';
+                expectedGender = (gender == 'F') ? 'M' : 'F'; // alternate
             } else {
-                sentToStage++;
+                sentToStage++; // sent to stage
             }
         }
 
@@ -34,15 +31,14 @@ public class CoEdAssembly {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        int n = sc.nextInt();
-        sc.nextLine(); // consume newline
+        int n = Integer.parseInt(sc.nextLine()); // read number of students
 
         AssemblyQueue queue = new AssemblyQueue();
 
         for (int i = 0; i < n; i++) {
             String line = sc.nextLine();
 
-            // Manually parse line to get name and gender without using split or trim
+            // Find the first space
             int spaceIndex = -1;
             for (int j = 0; j < line.length(); j++) {
                 if (line.charAt(j) == ' ') {
@@ -52,12 +48,20 @@ public class CoEdAssembly {
             }
 
             if (spaceIndex == -1 || spaceIndex == line.length() - 1) {
-                // Invalid line, skip
-                continue;
+                continue; // invalid line
             }
 
             String name = line.substring(0, spaceIndex);
-            char gender = line.charAt(spaceIndex + 1);
+
+            // Skip spaces after name to find gender
+            int genderIndex = spaceIndex + 1;
+            while (genderIndex < line.length() && line.charAt(genderIndex) == ' ') {
+                genderIndex++;
+            }
+
+            if (genderIndex >= line.length()) continue; // no gender found
+
+            char gender = line.charAt(genderIndex);
 
             queue.addStudent(name, gender);
         }
@@ -66,6 +70,3 @@ public class CoEdAssembly {
         queue.printSentCount();
     }
 }
-
-
-
