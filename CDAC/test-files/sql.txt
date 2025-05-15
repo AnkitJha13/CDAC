@@ -1,0 +1,149 @@
+
+
+Q1 List the employees who got salary allowance between Rs.1000 to Rs.1500 in the year 2012. 
+
+-
+
+SELECT e.empname
+FROM salary s
+JOIN emp e ON s.empcode = e.empcode
+WHERE s.salmonth = '2012-01-01'
+AND s.allow BETWEEN 1000 AND 1500;
+
+
+---------------------------------------------------------
+
+
+
+Q2 List the oldest employee of the office.
+
+-
+SELECT empname
+FROM emp
+WHERE joindate = (SELECT MIN(joindate) FROM emp);
+
+
+
+---------------------------------------
+
+
+Q3 List the employees who have atleast two person working under him/her and the
+number of their subordinates. List the employee with highest number of
+subordinates first, next the person with next highest number of subordinates and so
+on. 
+
+-
+
+SELECT e.empname, COUNT(e2.empcode) AS num_subordinates
+FROM emp e
+JOIN emp e2 ON e.empcode = e2.supcode
+GROUP BY e.empname
+HAVING COUNT(e2.empcode) > 0
+ORDER BY num_subordinates DESC;
+
+
+
+----------------------------------------------------
+
+
+
+Q4 List the departments in which average salary of employees is more than average
+salary of the company. 
+
+
+-
+
+SELECT d.deptname
+FROM dept d
+JOIN emp e ON d.deptcode = e.deptcode
+GROUP BY d.deptname
+HAVING AVG(e.basicpay) > (SELECT AVG(basicpay) FROM emp);
+
+
+
+
+
+----------------------------------
+
+
+
+Q5 Create a procedure to count employees by gender from employee table. Use OUT
+   keyword to store the count. Display the result of this procedure. 
+
+
+-
+
+DELIMITER //
+CREATE PROCEDURE CountEmployeesByGender(
+    OUT male_count INT,
+    OUT female_count INT
+)
+BEGIN
+    -- Count males
+    SELECT COUNT(*) INTO male_count
+    FROM emp
+    WHERE sex = 'M';
+
+    -- Count females
+    SELECT COUNT(*) INTO female_count
+    FROM emp
+    WHERE sex = 'F';
+END //
+DELIMITER ;
+ 
+ drop procedure if exists CountEmployeesByGender;
+ 
+ 
+ -- Declare variables
+SET @males = 0;
+SET @females = 0;
+
+-- Call the procedure
+CALL CountEmployeesByGender(@males, @females);
+
+-- Display the result
+SELECT @males AS Male_Employees, @females AS Female_Employees;
+
+
+
+
+---------------------------------------
+
+
+
+Q6 Write a function to compare two integer values. On calling the function if the values
+are equal it should display value1 equals value2, if first value is less than second it
+should display value1 less than value 2, if first value is greater than second it should
+display value1 greater than value 2. 
+
+-
+
+
+
+DELIMITER //
+
+CREATE FUNCTION CompareIntegers(val1 INT, val2 INT)
+RETURNS VARCHAR(50)
+DETERMINISTIC
+BEGIN
+    DECLARE result VARCHAR(50);
+
+    IF val1 = val2 THEN
+        SET result = CONCAT(val1, ' equals ', val2);
+    ELSEIF val1 < val2 THEN
+        SET result = CONCAT(val1, ' less than ', val2);
+    ELSE
+        SET result = CONCAT(val1, ' greater than ', val2);
+    END IF;
+
+    RETURN result;
+END //
+
+DELIMITER ;
+
+
+
+
+SELECT CompareIntegers(10, 20); -- Output: '10 less than 20'
+SELECT CompareIntegers(30, 30); -- Output: '30 equals 30'
+SELECT CompareIntegers(50, 40); -- Output: '50 greater than 40'
