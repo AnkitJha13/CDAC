@@ -1,4 +1,4 @@
-public class selectionSort {
+public class selectionSort { // push the smallest element to the leftmost possible side
     public static void main(String[] args) {
         int[] arr = {64, 25, 12, 22, 11};
         int n = arr.length;
