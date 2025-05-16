@@ -1,4 +1,5 @@
 public class selectionSort { // push the smallest element to the leftmost possible side
+    // first search for the smallest element in array index, then swap it with leftmost current element
     public static void main(String[] args) {
         int[] arr = {64, 25, 12, 22, 11};
         int n = arr.length;
