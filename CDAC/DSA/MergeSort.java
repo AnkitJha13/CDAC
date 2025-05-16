@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MergeSort {
+public class MergeSort {  // divide and conquer
 
 
     private static void merge(int[] arr, int low, int mid, int high) {
