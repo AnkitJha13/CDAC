@@ -1,3 +1,5 @@
+// Create a class for student data management which includes prn, course, batch, email id information along with marks in 5 subjects. Create functions to calculate percent marks, grade. Create a friend function to the class to display student prn and grade information for n number of students.
+
 #include <iostream>
 using namespace std;
 

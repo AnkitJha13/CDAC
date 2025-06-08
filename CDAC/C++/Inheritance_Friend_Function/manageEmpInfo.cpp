@@ -1,3 +1,5 @@
+// Create a program to manage employee information. Use inheritance to define a Person base class, and derive an Employee class. Extend it further to a Manager class.
+
 #include <iostream>
 using namespace std;
 
