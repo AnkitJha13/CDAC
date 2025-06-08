@@ -1,0 +1,2 @@
+g++ evenOddNumbers.cpp -o main.exe
+./main.exe
